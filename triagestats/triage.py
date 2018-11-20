@@ -404,6 +404,18 @@ def get_url_for_pc(pc):
     url = 'https://bugzilla.mozilla.org/buglist.cgi?' + '&'.join(params) + '&limit=0'
     return url
 
+def flat_team(data, emails):
+    flat = {}
+    # We have a person's name
+    if type(data) == str:
+        return {
+            data: emails.get(data)
+        }
+    else:
+        for elem in data:
+            partial = flat_team(elem, emails)
+            flat = {**flat, **partial}
+        return flat
 
 def generate_html(path='data', output='generated'):
     backlog = get_backlog(path=path)
@@ -419,6 +431,7 @@ def generate_html(path='data', output='generated'):
     labels = backlog['labels']
     tree = make_all_tree(teams, people)
     to_manager = get_person_to_manager(teams)
+    all_people_information = get_teams()
 
     for name in people:
         raw = {}
@@ -426,6 +439,7 @@ def generate_html(path='data', output='generated'):
         comps = []
         team = []
         urls = {}
+
         if name in managers:
             d = managers[name]
             raw['Global as manager'] = d['raw']
@@ -449,6 +463,8 @@ def generate_html(path='data', output='generated'):
             cumulate['Global as owner'] = cumulate['Global']
             del cumulate['Global']
 
+        flattened_emails = flat_team(team, all_people_information['mails'])
+
         if name in to_manager:
             manager_name = to_manager[name]
             manager_team = tree[manager_name]
@@ -457,6 +473,7 @@ def generate_html(path='data', output='generated'):
 
         html = template.render(name=name,
                                team=team,
+                               flattened_emails=flattened_emails,
                                manager_team=manager_team,
                                manager_name=manager_name,
                                labels=labels,
