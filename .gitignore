@@ -4,3 +4,5 @@
 mozdata.ini
 venv
 data/*
+generated
+triagestats/*json
