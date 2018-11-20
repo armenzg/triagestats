@@ -1,0 +1,6 @@
+python-dateutil>=2.7.3
+libmozdata>=0.1.41
+jinja2>=2.10
+requests>=2.2.20
+pytz>=2018.7
+
